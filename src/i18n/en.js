@@ -71,6 +71,17 @@ export default {
   // Remove
   "components.controls.remove.remove": "Remove",
 
+  // Table
+  "components.controls.table.table": "Table",
+  "components.controls.table.insertTable": "Insert Table",
+  "components.controls.table.addRowAbove": "Insert row above",
+  "components.controls.table.addRowBelow": "Insert row below",
+  "components.controls.table.addColLeft": "Insert column left",
+  "components.controls.table.addColRight": "Insert column right",
+  "components.controls.table.deleteRow": "Delete row",
+  "components.controls.table.deleteCol": "Delete column",
+  "components.controls.table.deleteTable": "Delete table",
+
   // TextAlign
   "components.controls.textalign.textalign": "Text Align",
   "components.controls.textalign.left": "Left",

@@ -19,6 +19,7 @@ import unlink from '../../images/unlink.svg';
 import emoji from '../../images/emoji.svg';
 import embedded from '../../images/embedded.svg';
 import image from '../../images/image.svg';
+import table from '../../images/table.svg';
 import undo from '../../images/undo.svg';
 import redo from '../../images/redo.svg';
 import subscript from '../../images/subscript.svg';
@@ -41,6 +42,7 @@ export default {
     "embedded",
     "emoji",
     "image",
+    "table",
     "remove",
     "history"
   ],
@@ -348,6 +350,19 @@ export default {
     defaultSize: {
       height: "auto",
       width: "auto"
+    },
+    title: undefined
+  },
+  table: {
+    icon: table,
+    className: undefined,
+    component: undefined,
+    popupClassName: undefined,
+    maxRows: 6,
+    maxCols: 6,
+    tableStyle: {
+      borderColor: "#ccc",
+      cellPadding: "8px"
     },
     title: undefined
   },

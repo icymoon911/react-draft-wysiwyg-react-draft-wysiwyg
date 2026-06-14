@@ -1,0 +1,66 @@
+.rdw-table-wrapper {
+  position: relative;
+  margin: 10px 0;
+  display: inline-block;
+  width: 100%;
+}
+
+.rdw-table {
+  border-collapse: collapse;
+  width: 100%;
+}
+
+.rdw-table-cell {
+  position: relative;
+  vertical-align: middle;
+}
+
+.rdw-table-cell-input {
+  width: 100%;
+  border: none;
+  outline: none;
+  background: transparent;
+  font: inherit;
+  padding: 0;
+  margin: 0;
+  box-sizing: border-box;
+}
+
+.rdw-table-action-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-bottom: 4px;
+  padding: 4px;
+  background: #f8f9fa;
+  border: 1px solid #dee2e6;
+  border-radius: 4px;
+}
+
+.rdw-table-action-btn {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 8px;
+  font-size: 12px;
+  line-height: 1;
+  color: #495057;
+  background: #fff;
+  border: 1px solid #ced4da;
+  border-radius: 3px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.rdw-table-action-btn:hover {
+  background: #e9ecef;
+}
+
+.rdw-table-action-btn-danger {
+  color: #dc3545;
+  border-color: #dc3545;
+}
+
+.rdw-table-action-btn-danger:hover {
+  background: #dc3545;
+  color: #fff;
+}

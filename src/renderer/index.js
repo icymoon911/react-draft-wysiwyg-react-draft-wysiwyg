@@ -1,5 +1,6 @@
 import Embedded from './Embedded';
 import getImageComponent from '../renderer/Image';
+import getTableComponent from '../renderer/Table';
 
 const getBlockRenderFunc = (config, customBlockRenderer) => (block) => {
   if (typeof customBlockRenderer === 'function') {
@@ -17,6 +18,11 @@ const getBlockRenderFunc = (config, customBlockRenderer) => (block) => {
     } else if (entity && entity.type === 'EMBEDDED_LINK') {
       return {
         component: Embedded,
+        editable: false,
+      };
+    } else if (entity && entity.type === 'TABLE') {
+      return {
+        component: getTableComponent(config),
         editable: false,
       };
     }

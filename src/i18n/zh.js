@@ -71,6 +71,17 @@ export default {
   // Remove
   "components.controls.remove.remove": "清除格式",
 
+  // Table
+  "components.controls.table.table": "表格",
+  "components.controls.table.insertTable": "插入表格",
+  "components.controls.table.addRowAbove": "上方插入行",
+  "components.controls.table.addRowBelow": "下方插入行",
+  "components.controls.table.addColLeft": "左侧插入列",
+  "components.controls.table.addColRight": "右侧插入列",
+  "components.controls.table.deleteRow": "删除行",
+  "components.controls.table.deleteCol": "删除列",
+  "components.controls.table.deleteTable": "删除表格",
+
   // TextAlign
   "components.controls.textalign.textalign": "文本对齐",
   "components.controls.textalign.left": "文本左对齐",
