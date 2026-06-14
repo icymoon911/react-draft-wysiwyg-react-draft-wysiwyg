@@ -1,17 +1,21 @@
-let callBacks = [];
+export default class KeyDownHandler {
+  callBacks = [];
 
-export default {
-  onKeyDown: (event: Object) => {
-    callBacks.forEach((callBack) => {
+  onKeyDown = (event: Object) => {
+    this.callBacks.forEach((callBack) => {
       callBack(event);
     });
-  },
+  };
 
-  registerCallBack: (callBack): void => {
-    callBacks.push(callBack);
-  },
+  registerCallBack = (callBack): void => {
+    this.callBacks.push(callBack);
+  };
 
-  deregisterCallBack: (callBack): void => {
-    callBacks = callBacks.filter(cb => cb !== callBack);
-  },
-};
+  deregisterCallBack = (callBack): void => {
+    this.callBacks = this.callBacks.filter(cb => cb !== callBack);
+  };
+
+  reset = (): void => {
+    this.callBacks = [];
+  };
+}

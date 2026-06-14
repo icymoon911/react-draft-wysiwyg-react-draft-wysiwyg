@@ -1,6 +1,6 @@
 export default class FocusHandler {
   inputFocused = false;
-  editorMouseDown = false;
+  editorFocused = false;
 
   onEditorMouseDown = ():void => {
     this.editorFocused = true;
@@ -18,7 +18,7 @@ export default class FocusHandler {
       this.inputFocused = false;
       return true;
     } else if (
-      (event.target.tagName !== 'INPUT' || event.target.tagName !== 'LABEL' || event.target.tagName !== 'TEXTAREA') &&
+      (event.target.tagName !== 'INPUT' && event.target.tagName !== 'LABEL' && event.target.tagName !== 'TEXTAREA') &&
       !this.inputFocused
     ) {
       this.editorFocused = false;
@@ -44,4 +44,9 @@ export default class FocusHandler {
   }
 
   isInputFocused = ():void => this.inputFocused;
+
+  reset = (): void => {
+    this.inputFocused = false;
+    this.editorFocused = false;
+  }
 }

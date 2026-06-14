@@ -2,7 +2,6 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import addMention from '../addMention';
-import KeyDownHandler from '../../../event-handler/keyDown';
 import SuggestionHandler from '../../../event-handler/suggestions';
 import './styles.css';
 
@@ -19,6 +18,7 @@ class Suggestion {
       dropdownClassName,
       optionClassName,
       modalHandler,
+      keyDownHandler,
     } = config;
     this.config = {
       separator,
@@ -31,6 +31,7 @@ class Suggestion {
       dropdownClassName,
       optionClassName,
       modalHandler,
+      keyDownHandler,
     };
   }
 
@@ -126,7 +127,7 @@ function getSuggestionComponent() {
         // eslint-disable-line react/no-did-mount-set-state
         style: { left, right, bottom },
       });
-      KeyDownHandler.registerCallBack(this.onEditorKeyDown);
+      config.keyDownHandler.registerCallBack(this.onEditorKeyDown);
       SuggestionHandler.open();
       config.modalHandler.setSuggestionCallback(this.closeSuggestionDropdown);
       this.filterSuggestions(this.props);
@@ -143,7 +144,7 @@ function getSuggestionComponent() {
     }
 
     componentWillUnmount() {
-      KeyDownHandler.deregisterCallBack(this.onEditorKeyDown);
+      config.keyDownHandler.deregisterCallBack(this.onEditorKeyDown);
       SuggestionHandler.close();
       config.modalHandler.removeSuggestionCallback();
     }
