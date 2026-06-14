@@ -1,16 +1,13 @@
-/* @flow */
-
-import { forEach, isMap } from "./common";
+import { isMap } from "./common";
 
 /**
- * This function is used when displaying options in drop-down.
- * Icon for first available options is used in drop-down placeholder.
+ * This function displays the icon for the first available option in a dropdown placeholder.
  */
 export const getFirstIcon = config => config[config.options[0]].icon;
 
 /**
  * The function is used to recursively merge toolbar options.
- * It assumes all the options are peresent in obj1.
+ * It assumes all the options are present in obj1.
  * It recursively merges objects but not arrays.
  */
 export const mergeRecursive = (obj1, obj2) => {
@@ -18,7 +15,8 @@ export const mergeRecursive = (obj1, obj2) => {
     return obj1;
   }
   const mergedValue = {};
-  forEach(obj1, (key, value) => {
+  Object.keys(obj1).forEach((key) => {
+    const value = obj1[key];
     if (isMap(value)) {
       mergedValue[key] = mergeRecursive(value, obj2[key]);
     } else {
@@ -27,5 +25,3 @@ export const mergeRecursive = (obj1, obj2) => {
   });
   return mergedValue;
 };
-
-// todo: writing test cases for these methods and new methods added in common.js

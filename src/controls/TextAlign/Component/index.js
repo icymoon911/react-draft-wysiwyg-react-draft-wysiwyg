@@ -1,6 +1,4 @@
-/* @flow */
-
-import React, { Component } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 
@@ -9,25 +7,19 @@ import { Dropdown, DropdownOption } from '../../../components/Dropdown';
 import { getFirstIcon } from '../../../utils/toolbar';
 import './styles.css';
 
-export default class TextAlign extends Component {
-  static propTypes = {
-    expanded: PropTypes.bool,
-    doExpand: PropTypes.func,
-    doCollapse: PropTypes.func,
-    onExpandEvent: PropTypes.func,
-    config: PropTypes.object,
-    onChange: PropTypes.func,
-    currentState: PropTypes.object,
-    translations: PropTypes.object,
-  };
-
-  renderInFlatList(): Object {
-    const {
-      config: { options, left, center, right, justify, className },
-      onChange,
-      currentState: { textAlignment },
-      translations,
-    } = this.props;
+const TextAlign = ({
+  expanded,
+  doExpand,
+  doCollapse,
+  onExpandEvent,
+  config,
+  onChange,
+  currentState,
+  translations,
+}) => {
+  const renderInFlatList = () => {
+    const { options, left, center, right, justify, className } = config;
+    const { textAlignment } = currentState;
     return (
       <div className={classNames('rdw-text-align-wrapper', className)} aria-label="rdw-textalign-control">
         {options.indexOf('left') >= 0 && <Option
@@ -80,20 +72,11 @@ export default class TextAlign extends Component {
         </Option>}
       </div>
     );
-  }
+  };
 
-  renderInDropDown(): Object {
-    const {
-      config,
-      expanded,
-      doExpand,
-      onExpandEvent,
-      doCollapse,
-      currentState: { textAlignment },
-      onChange,
-      translations,
-    } = this.props;
+  const renderInDropDown = () => {
     const { options, left, center, right, justify, className, dropdownClassName, title } = config;
+    const { textAlignment } = currentState;
     return (
       <Dropdown
         className={classNames('rdw-text-align-dropdown', className)}
@@ -156,13 +139,23 @@ export default class TextAlign extends Component {
         </DropdownOption>}
       </Dropdown>
     );
-  }
+  };
 
-  render(): Object {
-    const { config: { inDropdown } } = this.props;
-    if (inDropdown) {
-      return this.renderInDropDown();
-    }
-    return this.renderInFlatList();
+  if (config.inDropdown) {
+    return renderInDropDown();
   }
-}
+  return renderInFlatList();
+};
+
+TextAlign.propTypes = {
+  expanded: PropTypes.bool,
+  doExpand: PropTypes.func,
+  doCollapse: PropTypes.func,
+  onExpandEvent: PropTypes.func,
+  config: PropTypes.object,
+  onChange: PropTypes.func,
+  currentState: PropTypes.object,
+  translations: PropTypes.object,
+};
+
+export default TextAlign;

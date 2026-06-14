@@ -1,6 +1,4 @@
-/* @flow */
-
-import React, { Component } from 'react';
+import React, { useCallback } from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 
@@ -9,53 +7,40 @@ import { Dropdown, DropdownOption } from '../../../components/Dropdown';
 import Option from '../../../components/Option';
 import './styles.css';
 
-export default class LayoutComponent extends Component {
-  static propTypes = {
-    expanded: PropTypes.bool,
-    doExpand: PropTypes.func,
-    doCollapse: PropTypes.func,
-    onExpandEvent: PropTypes.func,
-    config: PropTypes.object,
-    onChange: PropTypes.func,
-    currentState: PropTypes.object,
-    translations: PropTypes.object,
-    indentDisabled: PropTypes.bool,
-    outdentDisabled: PropTypes.bool,
-  };
+const options = ['unordered', 'ordered', 'indent', 'outdent'];
 
-  options: Array = ['unordered', 'ordered', 'indent', 'outdent'];
-
-  toggleBlockType: Function = (blockType: String): void => {
-    const { onChange } = this.props;
+const LayoutComponent = ({
+  expanded,
+  doExpand,
+  doCollapse,
+  onExpandEvent,
+  config,
+  onChange,
+  currentState,
+  translations,
+  indentDisabled,
+  outdentDisabled,
+}) => {
+  const toggleBlockType = useCallback((blockType) => {
     onChange(blockType);
-  };
+  }, [onChange]);
 
-  indent: Function = (): void => {
-    const { onChange } = this.props;
+  const indent = useCallback(() => {
     onChange('indent');
-  };
+  }, [onChange]);
 
-  outdent: Function = (): void => {
-    const { onChange } = this.props;
+  const outdent = useCallback(() => {
     onChange('outdent');
-  };
+  }, [onChange]);
 
-  // todo: evaluate refactoring this code to put a loop there and in other places also in code
-  // hint: it will require moving click handlers
-  renderInFlatList(): Object {
-    const {
-      config,
-      currentState: { listType },
-      translations,
-      indentDisabled,
-      outdentDisabled
-    } = this.props;
-    const { options, unordered, ordered, indent, outdent, className } = config;
+  const renderInFlatList = () => {
+    const { unordered, ordered, indent: indentConf, outdent: outdentConf, className } = config;
+    const { listType } = currentState;
     return (
       <div className={classNames('rdw-list-wrapper', className)} aria-label="rdw-list-control">
-        {options.indexOf('unordered') >= 0 && <Option
+        {config.options.indexOf('unordered') >= 0 && <Option
           value="unordered"
-          onClick={this.toggleBlockType}
+          onClick={toggleBlockType}
           className={classNames(unordered.className)}
           active={listType === 'unordered'}
           title={unordered.title || translations['components.controls.list.unordered']}
@@ -65,9 +50,9 @@ export default class LayoutComponent extends Component {
             alt=""
           />
         </Option>}
-        {options.indexOf('ordered') >= 0 && <Option
+        {config.options.indexOf('ordered') >= 0 && <Option
           value="ordered"
-          onClick={this.toggleBlockType}
+          onClick={toggleBlockType}
           className={classNames(ordered.className)}
           active={listType === 'ordered'}
           title={ordered.title || translations['components.controls.list.ordered']}
@@ -77,44 +62,35 @@ export default class LayoutComponent extends Component {
             alt=""
           />
         </Option>}
-        {options.indexOf('indent') >= 0 && <Option
-          onClick={this.indent}
+        {config.options.indexOf('indent') >= 0 && <Option
+          onClick={indent}
           disabled={indentDisabled}
-          className={classNames(indent.className)}
-          title={indent.title || translations['components.controls.list.indent']}
+          className={classNames(indentConf.className)}
+          title={indentConf.title || translations['components.controls.list.indent']}
         >
           <img
-            src={indent.icon}
+            src={indentConf.icon}
             alt=""
           />
         </Option>}
-        {options.indexOf('outdent') >= 0 && <Option
-          onClick={this.outdent}
+        {config.options.indexOf('outdent') >= 0 && <Option
+          onClick={outdent}
           disabled={outdentDisabled}
-          className={classNames(outdent.className)}
-          title={outdent.title || translations['components.controls.list.outdent']}
+          className={classNames(outdentConf.className)}
+          title={outdentConf.title || translations['components.controls.list.outdent']}
         >
           <img
-            src={outdent.icon}
+            src={outdentConf.icon}
             alt=""
           />
         </Option>}
       </div>
     );
-  }
+  };
 
-  renderInDropDown(): Object {
-    const {
-      config,
-      expanded,
-      doCollapse,
-      doExpand,
-      onExpandEvent,
-      onChange,
-      currentState: { listType },
-      translations,
-    } = this.props;
-    const { options, className, dropdownClassName, title } = config;
+  const renderInDropDown = () => {
+    const { className, dropdownClassName, title } = config;
+    const { listType } = currentState;
     return (
       <Dropdown
         className={classNames('rdw-list-dropdown', className)}
@@ -131,12 +107,12 @@ export default class LayoutComponent extends Component {
           src={getFirstIcon(config)}
           alt=""
         />
-        { this.options
-          .filter(option => options.indexOf(option) >= 0)
+        { options
+          .filter(option => config.options.indexOf(option) >= 0)
           .map((option, index) => (<DropdownOption
             key={index}
             value={option}
-            disabled={this.props[`${option}Disabled`]}
+            disabled={option === 'indent' ? indentDisabled : option === 'outdent' ? outdentDisabled : undefined}
             className={classNames('rdw-list-dropdownOption', config[option].className)}
             active={listType === option}
             title={config[option].title || translations[`components.controls.list.${option}`]}
@@ -149,13 +125,25 @@ export default class LayoutComponent extends Component {
         }
       </Dropdown>
     );
-  }
+  };
 
-  render(): Object {
-    const { config: { inDropdown } } = this.props;
-    if (inDropdown) {
-      return this.renderInDropDown();
-    }
-    return this.renderInFlatList();
+  if (config.inDropdown) {
+    return renderInDropDown();
   }
-}
+  return renderInFlatList();
+};
+
+LayoutComponent.propTypes = {
+  expanded: PropTypes.bool,
+  doExpand: PropTypes.func,
+  doCollapse: PropTypes.func,
+  onExpandEvent: PropTypes.func,
+  config: PropTypes.object,
+  onChange: PropTypes.func,
+  currentState: PropTypes.object,
+  translations: PropTypes.object,
+  indentDisabled: PropTypes.bool,
+  outdentDisabled: PropTypes.bool,
+};
+
+export default LayoutComponent;

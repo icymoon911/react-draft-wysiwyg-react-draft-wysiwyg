@@ -1,57 +1,14 @@
-import React, { Component } from 'react';
+import React, { useCallback } from 'react';
 import PropTypes from 'prop-types';
 import { Modifier, EditorState } from 'draft-js';
 
 import LayoutComponent from './Component';
+import { useExpandCollapse } from '../../utils/hooks';
 
-export default class Emoji extends Component {
-  static propTypes = {
-    editorState: PropTypes.object.isRequired,
-    onChange: PropTypes.func.isRequired,
-    modalHandler: PropTypes.object,
-    config: PropTypes.object,
-    translations: PropTypes.object,
-  };
+const Emoji = ({ editorState, onChange, modalHandler, config, translations }) => {
+  const { expanded, onExpandEvent, doExpand, doCollapse } = useExpandCollapse(modalHandler);
 
-  state = {
-    expanded: false,
-  };
-
-  componentDidMount() {
-    const { modalHandler } = this.props;
-    modalHandler.registerCallBack(this.expandCollapse);
-  }
-
-  componentWillUnmount() {
-    const { modalHandler } = this.props;
-    modalHandler.deregisterCallBack(this.expandCollapse);
-  }
-
-  onExpandEvent = () => {
-    this.signalExpanded = !this.state.expanded;
-  };
-
-  expandCollapse = () => {
-    this.setState({
-      expanded: this.signalExpanded,
-    });
-    this.signalExpanded = false;
-  };
-
-  doExpand = () => {
-    this.setState({
-      expanded: true,
-    });
-  };
-
-  doCollapse = () => {
-    this.setState({
-      expanded: false,
-    });
-  };
-
-  addEmoji = emoji => {
-    const { editorState, onChange } = this.props;
+  const addEmoji = useCallback((emoji) => {
     const contentState = Modifier.replaceText(
       editorState.getCurrentContent(),
       editorState.getSelection(),
@@ -59,26 +16,29 @@ export default class Emoji extends Component {
       editorState.getCurrentInlineStyle()
     );
     onChange(EditorState.push(editorState, contentState, 'insert-characters'));
-    this.doCollapse();
-  };
+    doCollapse();
+  }, [editorState, onChange, doCollapse]);
 
-  render() {
-    const { config, translations } = this.props;
-    const { expanded } = this.state;
-    const EmojiComponent = config.component || LayoutComponent;
-    return (
-      <EmojiComponent
-        config={config}
-        translations={translations}
-        onChange={this.addEmoji}
-        expanded={expanded}
-        onExpandEvent={this.onExpandEvent}
-        doExpand={this.doExpand}
-        doCollapse={this.doCollapse}
-        onCollpase={this.closeModal}
-      />
-    );
-  }
-}
+  const EmojiComponent = config.component || LayoutComponent;
+  return (
+    <EmojiComponent
+      config={config}
+      translations={translations}
+      onChange={addEmoji}
+      expanded={expanded}
+      onExpandEvent={onExpandEvent}
+      doExpand={doExpand}
+      doCollapse={doCollapse}
+    />
+  );
+};
 
-// todo: unit test cases
+Emoji.propTypes = {
+  editorState: PropTypes.object.isRequired,
+  onChange: PropTypes.func.isRequired,
+  modalHandler: PropTypes.object,
+  config: PropTypes.object,
+  translations: PropTypes.object,
+};
+
+export default Emoji;

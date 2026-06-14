@@ -1,7 +1,7 @@
 /* @flow */
 
 import React from "react";
-import { expect, assert } from "chai";
+import { expect } from "chai";
 import { shallow, mount } from "enzyme";
 import { getAllBlocks } from "draftjs-utils";
 import {
@@ -26,7 +26,7 @@ describe("ImageRenderer test suite", () => {
     " "
   );
 
-  it("should have a div when rendered", () => {
+  it("should have a span when rendered", () => {
     const Image = getImageComponent({
       isReadOnly: () => false,
       isImageAlignmentEnabled: () => true,
@@ -43,7 +43,7 @@ describe("ImageRenderer test suite", () => {
     ).to.equal("span");
   });
 
-  it("should have state initialized correctly", () => {
+  it("should render with alignment options hidden by default", () => {
     const Image = getImageComponent({
       isReadOnly: () => false,
       isImageAlignmentEnabled: () => true,
@@ -54,7 +54,8 @@ describe("ImageRenderer test suite", () => {
         contentState={contentState}
       />
     );
-    assert.isNotTrue(control.state().hovered);
+    // Alignment options should not be visible until hover
+    expect(control.find('.rdw-image-alignment-options-popup').length).to.equal(0);
   });
 
   it("should have 1 child element by default", () => {

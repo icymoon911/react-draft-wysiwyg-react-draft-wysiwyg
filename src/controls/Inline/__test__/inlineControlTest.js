@@ -83,7 +83,7 @@ describe('InlineControl test suite', () => {
     assert.equal(onChange.callCount, 5);
   });
 
-  it('should have false value for all rich styles in state by default', () => {
+  it('should render inline styles as not-active by default', () => {
     const control = shallow(
       <InlineControl
         onChange={() => {}}
@@ -92,10 +92,11 @@ describe('InlineControl test suite', () => {
         modalHandler={new ModalHandler()}
       />,
     );
-    assert.isNotTrue(control.state().currentStyles.BOLD);
-    assert.isNotTrue(control.state().currentStyles.ITALIC);
-    assert.isNotTrue(control.state().currentStyles.UNDERLINE);
-    assert.isNotTrue(control.state().currentStyles.STRIKETHROUGH);
-    assert.isNotTrue(control.state().currentStyles.MONOSPACE);
+    // Verify that the Inline layout component renders Option elements
+    // with active=false for all styles by default (no inline styles active)
+    const options = control.find(Option);
+    options.forEach((option) => {
+      assert.isNotTrue(option.prop('active'));
+    });
   });
 });

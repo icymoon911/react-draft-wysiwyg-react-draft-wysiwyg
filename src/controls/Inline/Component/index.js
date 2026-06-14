@@ -1,6 +1,4 @@
-/* @flow */
-
-import React, { Component } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 
@@ -10,58 +8,43 @@ import { Dropdown, DropdownOption } from '../../../components/Dropdown';
 
 import './styles.css';
 
-export default class Inline extends Component {
-  static propTypes = {
-    expanded: PropTypes.bool,
-    doExpand: PropTypes.func,
-    doCollapse: PropTypes.func,
-    onExpandEvent: PropTypes.func,
-    config: PropTypes.object,
-    onChange: PropTypes.func,
-    currentState: PropTypes.object,
-    translations: PropTypes.object,
-  };
+const Inline = ({
+  expanded,
+  doExpand,
+  doCollapse,
+  onExpandEvent,
+  config,
+  onChange,
+  currentState,
+  translations,
+}) => {
+  const renderInFlatList = () => (
+    <div className={classNames('rdw-inline-wrapper', config.className)} aria-label="rdw-inline-control">
+      {
+        config.options
+          .map((style, index) =>
+            (<Option
+              key={index}
+              value={style}
+              onClick={onChange}
+              className={classNames(config[style].className)}
+              active={
+                currentState[style] === true ||
+                (style === 'MONOSPACE' && currentState.CODE)
+              }
+              title={config[style].title || translations[`components.controls.inline.${style}`]}
+            >
+              <img
+                alt=""
+                src={config[style].icon}
+              />
+            </Option>),
+          )
+      }
+    </div>
+  );
 
-  renderInFlatList(): Object {
-    const { config, currentState, onChange, translations } = this.props;
-    return (
-      <div className={classNames('rdw-inline-wrapper', config.className)} aria-label="rdw-inline-control">
-        {
-          config.options
-            .map((style, index) =>
-              (<Option
-                key={index}
-                value={style}
-                onClick={onChange}
-                className={classNames(config[style].className)}
-                active={
-                  currentState[style] === true ||
-                  (style === 'MONOSPACE' && currentState.CODE)
-                }
-                title={config[style].title || translations[`components.controls.inline.${style}`]}
-              >
-                <img
-                  alt=""
-                  src={config[style].icon}
-                />
-              </Option>),
-            )
-        }
-      </div>
-    );
-  }
-
-  renderInDropDown(): Object {
-    const {
-      config,
-      expanded,
-      doExpand,
-      onExpandEvent,
-      doCollapse,
-      currentState,
-      onChange,
-      translations,
-    } = this.props;
+  const renderInDropDown = () => {
     const { className, dropdownClassName, title } = config;
     return (
       <Dropdown
@@ -100,15 +83,23 @@ export default class Inline extends Component {
         }
       </Dropdown>
     );
-  }
+  };
 
-  render(): Object {
-    const { config: { inDropdown } } = this.props;
-    if (inDropdown) {
-      return this.renderInDropDown();
-    }
-    return this.renderInFlatList();
+  if (config.inDropdown) {
+    return renderInDropDown();
   }
-}
+  return renderInFlatList();
+};
 
-// todo: make subscript less low
+Inline.propTypes = {
+  expanded: PropTypes.bool,
+  doExpand: PropTypes.func,
+  doCollapse: PropTypes.func,
+  onExpandEvent: PropTypes.func,
+  config: PropTypes.object,
+  onChange: PropTypes.func,
+  currentState: PropTypes.object,
+  translations: PropTypes.object,
+};
+
+export default Inline;

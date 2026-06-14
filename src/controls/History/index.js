@@ -1,95 +1,53 @@
-import React, { Component } from 'react';
+import React, { useCallback } from 'react';
 import PropTypes from 'prop-types';
 import { EditorState } from 'draft-js';
 
 import LayoutComponent from './Component';
+import { useExpandCollapse, useEditorStateSync } from '../../utils/hooks';
 
-export default class History extends Component {
-  static propTypes = {
-    onChange: PropTypes.func.isRequired,
-    editorState: PropTypes.object,
-    modalHandler: PropTypes.object,
-    config: PropTypes.object,
-    translations: PropTypes.object,
-  };
+const History = ({ editorState, onChange, modalHandler, config, translations }) => {
+  const { expanded, onExpandEvent, doExpand, doCollapse } = useExpandCollapse(modalHandler);
 
-  constructor(props) {
-    super(props);
-    const state = {
-      expanded: false,
-      undoDisabled: false,
-      redoDisabled: false,
-    };
-    const { editorState, modalHandler } = props;
-    if (editorState) {
-      state.undoDisabled = editorState.getUndoStack().size === 0;
-      state.redoDisabled = editorState.getRedoStack().size === 0;
-    }
-    this.state = state;
-    modalHandler.registerCallBack(this.expandCollapse);
-  }
+  const undoDisabled = useEditorStateSync(
+    editorState,
+    (es) => es.getUndoStack().size === 0,
+    false
+  );
 
-  componentDidUpdate(prevProps) {
-    const { editorState } = this.props;
-    if (editorState && prevProps.editorState !== editorState) {
-      this.setState({
-        undoDisabled: editorState.getUndoStack().size === 0,
-        redoDisabled: editorState.getRedoStack().size === 0,
-      });
-    }
-  }
+  const redoDisabled = useEditorStateSync(
+    editorState,
+    (es) => es.getRedoStack().size === 0,
+    false
+  );
 
-  componentWillUnmount() {
-    const { modalHandler } = this.props;
-    modalHandler.deregisterCallBack(this.expandCollapse);
-  }
-
-  onExpandEvent = () => {
-    this.signalExpanded = !this.state.expanded;
-  };
-
-  onChange = action => {
-    const { editorState, onChange } = this.props;
+  const historyOnChange = useCallback((action) => {
     const newState = EditorState[action](editorState);
     if (newState) {
       onChange(newState);
     }
-  };
+  }, [editorState, onChange]);
 
-  doExpand = () => {
-    this.setState({
-      expanded: true,
-    });
-  };
+  const HistoryComponent = config.component || LayoutComponent;
+  return (
+    <HistoryComponent
+      config={config}
+      translations={translations}
+      currentState={{ undoDisabled, redoDisabled }}
+      expanded={expanded}
+      onExpandEvent={onExpandEvent}
+      doExpand={doExpand}
+      doCollapse={doCollapse}
+      onChange={historyOnChange}
+    />
+  );
+};
 
-  doCollapse = () => {
-    this.setState({
-      expanded: false,
-    });
-  };
+History.propTypes = {
+  onChange: PropTypes.func.isRequired,
+  editorState: PropTypes.object,
+  modalHandler: PropTypes.object,
+  config: PropTypes.object,
+  translations: PropTypes.object,
+};
 
-  expandCollapse = () => {
-    this.setState({
-      expanded: this.signalExpanded,
-    });
-    this.signalExpanded = false;
-  };
-
-  render() {
-    const { config, translations } = this.props;
-    const { undoDisabled, redoDisabled, expanded } = this.state;
-    const HistoryComponent = config.component || LayoutComponent;
-    return (
-      <HistoryComponent
-        config={config}
-        translations={translations}
-        currentState={{ undoDisabled, redoDisabled }}
-        expanded={expanded}
-        onExpandEvent={this.onExpandEvent}
-        doExpand={this.doExpand}
-        doCollapse={this.doCollapse}
-        onChange={this.onChange}
-      />
-    );
-  }
-}
+export default History;

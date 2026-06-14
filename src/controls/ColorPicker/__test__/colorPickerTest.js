@@ -6,7 +6,7 @@ import {
   convertFromHTML,
   ContentState,
 } from 'draft-js';
-import { expect, assert } from 'chai';
+import { expect } from 'chai';
 import { mount } from 'enzyme';
 
 import ColorPicker from '..';
@@ -31,7 +31,7 @@ describe('ColorPicker test suite', () => {
     ).html().startsWith('<div')).to.equal(true);
   });
 
-  it('should correctly set default state values', () => {
+  it('should render collapsed by default (no modal visible)', () => {
     const control = mount(
       <ColorPicker
         onChange={() => {}}
@@ -41,25 +41,26 @@ describe('ColorPicker test suite', () => {
         modalHandler={new ModalHandler()}
       />,
     );
-    const state = control.state();
-    assert.isNotTrue(state.expanded);
-    assert.isUndefined(state.currentColor);
-    assert.isUndefined(state.currentBgColor);
+    // When collapsed, the color picker modal should not be rendered
+    expect(control.find('.rdw-colorpicker-modal').length).to.equal(0);
   });
 
-  it('should set variable signalExpanded to true when first child is clicked', () => {
+  it('should toggle expansion when modalHandler callbacks fire', () => {
+    const modalHandler = new ModalHandler();
     const control = mount(
       <ColorPicker
         onChange={() => {}}
         editorState={editorState}
         config={defaultToolbar.colorPicker}
         translations={localeTranslations.en}
-        modalHandler={new ModalHandler()}
+        modalHandler={modalHandler}
       />,
     );
-    const colorPicker = control.find('ColorPicker');
-    assert.isNotTrue(colorPicker.instance().signalExpanded);
+    // Simulate: click option (sets signal), then modalHandler fires expandCollapse
     control.find('Option').simulate('click');
-    assert.isTrue(colorPicker.instance().signalExpanded);
+    // Trigger the registered callback (expandCollapse)
+    modalHandler.closeAllModals();
+    control.update();
+    expect(control.find('.rdw-colorpicker-modal').length).to.equal(1);
   });
 });

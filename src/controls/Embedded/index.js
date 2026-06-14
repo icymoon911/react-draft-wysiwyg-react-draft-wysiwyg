@@ -1,61 +1,15 @@
-import React, { Component } from 'react';
+import React, { useCallback } from 'react';
 import PropTypes from 'prop-types';
 import { AtomicBlockUtils } from 'draft-js';
 
 import LayoutComponent from './Component';
+import { useExpandCollapse } from '../../utils/hooks';
 
-class Embedded extends Component {
-  static propTypes = {
-    editorState: PropTypes.object.isRequired,
-    onChange: PropTypes.func.isRequired,
-    modalHandler: PropTypes.object,
-    config: PropTypes.object,
-    translations: PropTypes.object,
-  };
+const Embedded = ({ editorState, onChange, modalHandler, config, translations }) => {
+  const { expanded, onExpandEvent, doExpand, doCollapse } = useExpandCollapse(modalHandler);
 
-  state = {
-    expanded: false,
-  };
-
-  componentDidMount() {
-    const { modalHandler } = this.props;
-    modalHandler.registerCallBack(this.expandCollapse);
-  }
-
-  componentWillUnmount() {
-    const { modalHandler } = this.props;
-    modalHandler.deregisterCallBack(this.expandCollapse);
-  }
-
-  onExpandEvent = () => {
-    this.signalExpanded = !this.state.expanded;
-  };
-
-  expandCollapse = () => {
-    this.setState({
-      expanded: this.signalExpanded,
-    });
-    this.signalExpanded = false;
-  };
-
-  doExpand = () => {
-    this.setState({
-      expanded: true,
-    });
-  };
-
-  doCollapse = () => {
-    this.setState({
-      expanded: false,
-    });
-  };
-
-  addEmbeddedLink = (embeddedLink, height, width) => {
-    const {
-      editorState,
-      onChange,
-      config: { embedCallback },
-    } = this.props;
+  const addEmbeddedLink = useCallback((embeddedLink, height, width) => {
+    const { embedCallback } = config;
     const src = embedCallback ? embedCallback(embeddedLink) : embeddedLink;
     const entityKey = editorState
       .getCurrentContent()
@@ -67,27 +21,29 @@ class Embedded extends Component {
       ' '
     );
     onChange(newEditorState);
-    this.doCollapse();
-  };
+    doCollapse();
+  }, [editorState, onChange, config, doCollapse]);
 
-  render() {
-    const { config, translations } = this.props;
-    const { expanded } = this.state;
-    const EmbeddedComponent = config.component || LayoutComponent;
-    return (
-      <EmbeddedComponent
-        config={config}
-        translations={translations}
-        onChange={this.addEmbeddedLink}
-        expanded={expanded}
-        onExpandEvent={this.onExpandEvent}
-        doExpand={this.doExpand}
-        doCollapse={this.doCollapse}
-      />
-    );
-  }
-}
+  const EmbeddedComponent = config.component || LayoutComponent;
+  return (
+    <EmbeddedComponent
+      config={config}
+      translations={translations}
+      onChange={addEmbeddedLink}
+      expanded={expanded}
+      onExpandEvent={onExpandEvent}
+      doExpand={doExpand}
+      doCollapse={doCollapse}
+    />
+  );
+};
+
+Embedded.propTypes = {
+  editorState: PropTypes.object.isRequired,
+  onChange: PropTypes.func.isRequired,
+  modalHandler: PropTypes.object,
+  config: PropTypes.object,
+  translations: PropTypes.object,
+};
 
 export default Embedded;
-
-// todo: make default heights configurable

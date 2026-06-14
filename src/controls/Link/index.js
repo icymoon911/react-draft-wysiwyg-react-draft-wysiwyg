@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { useCallback } from 'react';
 import PropTypes from 'prop-types';
 import { RichUtils, EditorState, Modifier } from 'draft-js';
 import {
@@ -9,6 +9,7 @@ import {
 import linkifyIt from 'linkify-it';
 
 import LayoutComponent from './Component';
+import { useExpandCollapse, useEditorStateSync } from '../../utils/hooks';
 
 const linkify = linkifyIt();
 const linkifyLink = params => {
@@ -19,60 +20,16 @@ const linkifyLink = params => {
   };
 };
 
-class Link extends Component {
-  static propTypes = {
-    editorState: PropTypes.object.isRequired,
-    onChange: PropTypes.func.isRequired,
-    modalHandler: PropTypes.object,
-    config: PropTypes.object,
-    translations: PropTypes.object,
-  };
+const Link = ({ editorState, onChange, modalHandler, config, translations }) => {
+  const { expanded, onExpandEvent, doExpand, doCollapse } = useExpandCollapse(modalHandler);
 
-  constructor(props) {
-    super(props);
-    const { editorState, modalHandler } = this.props;
-    this.state = {
-      expanded: false,
-      link: undefined,
-      selectionText: undefined,
-      currentEntity: editorState ? getSelectionEntity(editorState) : undefined,
-    };
-    modalHandler.registerCallBack(this.expandCollapse);
-  }
+  const currentEntity = useEditorStateSync(
+    editorState,
+    (es) => getSelectionEntity(es),
+    editorState ? getSelectionEntity(editorState) : undefined
+  );
 
-  componentDidUpdate(prevProps) {
-    const { editorState } = this.props;
-    if (editorState && editorState !== prevProps.editorState) {
-      this.setState({ currentEntity: getSelectionEntity(editorState) });
-    }
-  }
-
-  componentWillUnmount() {
-    const { modalHandler } = this.props;
-    modalHandler.deregisterCallBack(this.expandCollapse);
-  }
-
-  onExpandEvent = () => {
-    this.signalExpanded = !this.state.expanded;
-  };
-
-  onChange = (action, title, target, targetOption) => {
-    const {
-      config: { linkCallback },
-    } = this.props;
-
-    if (action === 'link') {
-      const linkifyCallback = linkCallback || linkifyLink;
-      const linkified = linkifyCallback({ title, target, targetOption });
-      this.addLink(linkified.title, linkified.target, linkified.targetOption);
-    } else {
-      this.removeLink();
-    }
-  };
-
-  getCurrentValues = () => {
-    const { editorState } = this.props;
-    const { currentEntity } = this.state;
+  const getCurrentValues = useCallback(() => {
     const contentState = editorState.getCurrentContent();
     const currentValues = {};
     if (
@@ -91,30 +48,9 @@ class Link extends Component {
     }
     currentValues.selectionText = getSelectionText(editorState);
     return currentValues;
-  };
+  }, [editorState, currentEntity]);
 
-  doExpand = () => {
-    this.setState({
-      expanded: true,
-    });
-  };
-
-  expandCollapse = () => {
-    this.setState({
-      expanded: this.signalExpanded,
-    });
-    this.signalExpanded = false;
-  };
-
-  doCollapse = () => {
-    this.setState({
-      expanded: false,
-    });
-  };
-
-  removeLink = () => {
-    const { editorState, onChange } = this.props;
-    const { currentEntity } = this.state;
+  const removeLink = useCallback(() => {
     let selection = editorState.getSelection();
     if (currentEntity) {
       const entityRange = getEntityRange(editorState, currentEntity);
@@ -132,11 +68,9 @@ class Link extends Component {
       }
       onChange(RichUtils.toggleLink(editorState, selection, null));
     }
-  };
+  }, [editorState, onChange, currentEntity]);
 
-  addLink = (linkTitle, linkTarget, linkTargetOption) => {
-    const { editorState, onChange } = this.props;
-    const { currentEntity } = this.state;
+  const addLink = useCallback((linkTitle, linkTarget, linkTargetOption) => {
     let selection = editorState.getSelection();
 
     if (currentEntity) {
@@ -191,35 +125,46 @@ class Link extends Component {
     onChange(
       EditorState.push(newEditorState, contentState, 'insert-characters')
     );
-    this.doCollapse();
-  };
+    doCollapse();
+  }, [editorState, onChange, currentEntity, doCollapse]);
 
-  render() {
-    const { config, translations } = this.props;
-    const { expanded } = this.state;
-    const { link, selectionText } = this.getCurrentValues();
-    const LinkComponent = config.component || LayoutComponent;
-    return (
-      <LinkComponent
-        config={config}
-        translations={translations}
-        expanded={expanded}
-        onExpandEvent={this.onExpandEvent}
-        doExpand={this.doExpand}
-        doCollapse={this.doCollapse}
-        currentState={{
-          link,
-          selectionText,
-        }}
-        onChange={this.onChange}
-      />
-    );
-  }
-}
+  const linkOnChange = useCallback((action, title, target, targetOption) => {
+    const { linkCallback } = config;
+
+    if (action === 'link') {
+      const linkifyCallback = linkCallback || linkifyLink;
+      const linkified = linkifyCallback({ title, target, targetOption });
+      addLink(linkified.title, linkified.target, linkified.targetOption);
+    } else {
+      removeLink();
+    }
+  }, [config, addLink, removeLink]);
+
+  const { link, selectionText } = getCurrentValues();
+  const LinkComponent = config.component || LayoutComponent;
+  return (
+    <LinkComponent
+      config={config}
+      translations={translations}
+      expanded={expanded}
+      onExpandEvent={onExpandEvent}
+      doExpand={doExpand}
+      doCollapse={doCollapse}
+      currentState={{
+        link,
+        selectionText,
+      }}
+      onChange={linkOnChange}
+    />
+  );
+};
+
+Link.propTypes = {
+  editorState: PropTypes.object.isRequired,
+  onChange: PropTypes.func.isRequired,
+  modalHandler: PropTypes.object,
+  config: PropTypes.object,
+  translations: PropTypes.object,
+};
 
 export default Link;
-
-// todo refct
-// 1. better action names here
-// 2. align update signatue
-// 3. align current value signature
