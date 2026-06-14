@@ -46,6 +46,7 @@ class WysiwygEditor extends Component {
     this.wrapperId = `rdw-wrapper-${wrapperId}`;
     this.modalHandler = new ModalHandler();
     this.focusHandler = new FocusHandler();
+    this.keyDownHandler = new KeyDownHandler();
     this.blockRendererFn = getBlockRenderFunc(
       {
         isReadOnly: this.isReadOnly,
@@ -69,6 +70,12 @@ class WysiwygEditor extends Component {
 
   componentDidMount() {
     this.modalHandler.init(this.wrapperId);
+  }
+
+  componentWillUnmount() {
+    this.modalHandler.destroy();
+    this.focusHandler.destroy();
+    this.keyDownHandler.destroy();
   }
   // todo: change decorators depending on properties recceived in componentWillReceiveProps.
 
@@ -221,6 +228,7 @@ class WysiwygEditor extends Component {
           getSuggestions: this.getSuggestions,
           getWrapperRef: this.getWrapperRef,
           modalHandler: this.modalHandler,
+          keyDownHandler: this.keyDownHandler,
         })
       );
     }
@@ -479,7 +487,7 @@ class WysiwygEditor extends Component {
           onClick={this.focusEditor}
           onFocus={this.onEditorFocus}
           onBlur={this.onEditorBlur}
-          onKeyDown={KeyDownHandler.onKeyDown}
+          onKeyDown={this.keyDownHandler.onKeyDown}
           onMouseDown={this.onEditorMouseDown}
         >
           <Editor

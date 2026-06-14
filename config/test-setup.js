@@ -17,8 +17,12 @@ global.window = document.defaultView;
 global.HTMLElement = window.HTMLElement;
 global.HTMLAnchorElement = window.HTMLAnchorElement;
 
-global.navigator = {
-  userAgent: "node.js",
-};
+Object.defineProperty(global, 'navigator', {
+  value: {
+    userAgent: "node.js",
+  },
+  writable: true,
+  configurable: true,
+});
 
 configure({ adapter: new Adapter() });

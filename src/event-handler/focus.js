@@ -18,7 +18,7 @@ export default class FocusHandler {
       this.inputFocused = false;
       return true;
     } else if (
-      (event.target.tagName !== 'INPUT' || event.target.tagName !== 'LABEL' || event.target.tagName !== 'TEXTAREA') &&
+      (event.target.tagName !== 'INPUT' && event.target.tagName !== 'LABEL' && event.target.tagName !== 'TEXTAREA') &&
       !this.inputFocused
     ) {
       this.editorFocused = false;
@@ -44,4 +44,14 @@ export default class FocusHandler {
   }
 
   isInputFocused = ():void => this.inputFocused;
+
+  /**
+   * Reset all internal focus state.
+   * Called when the editor component unmounts to avoid stale state leaks.
+   */
+  destroy = (): void => {
+    this.inputFocused = false;
+    this.editorMouseDown = false;
+    this.editorFocused = false;
+  }
 }
