@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 
@@ -8,102 +8,63 @@ import Option from '../../../components/Option';
 import { Dropdown, DropdownOption } from '../../../components/Dropdown';
 import './styles.css';
 
-class LayoutComponent extends Component {
-  static propTypes = {
-    expanded: PropTypes.bool,
-    doExpand: PropTypes.func,
-    doCollapse: PropTypes.func,
-    onExpandEvent: PropTypes.func,
-    config: PropTypes.object,
-    onChange: PropTypes.func,
-    currentState: PropTypes.object,
-    translations: PropTypes.object,
-  };
+const LayoutComponent = ({ expanded, doExpand, doCollapse, onExpandEvent, config, onChange, currentState, translations }) => {
+  const [showModal, setShowModal] = useState(false);
+  const [linkTarget, setLinkTarget] = useState('');
+  const [linkTitle, setLinkTitle] = useState('');
+  const [linkTargetOption, setLinkTargetOption] = useState(config.defaultTargetOption);
 
-  state = {
-    showModal: false,
-    linkTarget: '',
-    linkTitle: '',
-    linkTargetOption: this.props.config.defaultTargetOption,
-  };
-
-  componentDidUpdate(prevProps) {
-    if (prevProps.expanded && !this.props.expanded) {
-      this.setState({
-        showModal: false,
-        linkTarget: '',
-        linkTitle: '',
-        linkTargetOption: this.props.config.defaultTargetOption,
-      });
+  useEffect(() => {
+    if (!expanded) {
+      setShowModal(false);
+      setLinkTarget('');
+      setLinkTitle('');
+      setLinkTargetOption(config.defaultTargetOption);
     }
-  }
+  }, [expanded, config.defaultTargetOption]);
 
-  removeLink = () => {
-    const { onChange } = this.props;
+  const removeLink = useCallback(() => {
     onChange('unlink');
-  };
+  }, [onChange]);
 
-  addLink = () => {
-    const { onChange } = this.props;
-    const { linkTitle, linkTarget, linkTargetOption } = this.state;
+  const addLink = useCallback(() => {
     onChange('link', linkTitle, linkTarget, linkTargetOption);
-  };
+  }, [onChange, linkTitle, linkTarget, linkTargetOption]);
 
-  updateValue = event => {
-    this.setState({
-      [`${event.target.name}`]: event.target.value,
-    });
-  };
+  const updateValue = useCallback((event) => {
+    const { name, value } = event.target;
+    if (name === 'linkTitle') setLinkTitle(value);
+    else if (name === 'linkTarget') setLinkTarget(value);
+  }, []);
 
-  updateTargetOption = event => {
-    this.setState({
-      linkTargetOption: event.target.checked ? '_blank' : '_self',
-    });
-  };
+  const updateTargetOption = useCallback((event) => {
+    setLinkTargetOption(event.target.checked ? '_blank' : '_self');
+  }, []);
 
-  hideModal = () => {
-    this.setState({
-      showModal: false,
-    });
-  };
+  const hideModal = useCallback(() => {
+    setShowModal(false);
+  }, []);
 
-  signalExpandShowModal = () => {
-    const {
-      onExpandEvent,
-      currentState: { link, selectionText },
-    } = this.props;
-    const { linkTargetOption } = this.state;
+  const signalExpandShowModal = useCallback(() => {
+    const { link, selectionText } = currentState;
     onExpandEvent();
-    this.setState({
-      showModal: true,
-      linkTarget: (link && link.target) || '',
-      linkTargetOption: (link && link.targetOption) || linkTargetOption,
-      linkTitle: (link && link.title) || selectionText,
-    });
-  };
+    setShowModal(true);
+    setLinkTarget((link && link.target) || '');
+    setLinkTargetOption((link && link.targetOption) || config.defaultTargetOption);
+    setLinkTitle((link && link.title) || selectionText);
+  }, [currentState, onExpandEvent, config.defaultTargetOption]);
 
-  forceExpandAndShowModal = () => {
-    const {
-      doExpand,
-      currentState: { link, selectionText },
-    } = this.props;
-    const { linkTargetOption } = this.state;
+  const forceExpandAndShowModal = useCallback(() => {
+    const { link, selectionText } = currentState;
     doExpand();
-    this.setState({
-      showModal: true,
-      linkTarget: link && link.target,
-      linkTargetOption: (link && link.targetOption) || linkTargetOption,
-      linkTitle: (link && link.title) || selectionText,
-    });
-  };
+    setShowModal(true);
+    setLinkTarget(link && link.target);
+    setLinkTargetOption((link && link.targetOption) || config.defaultTargetOption);
+    setLinkTitle((link && link.title) || selectionText);
+  }, [currentState, doExpand, config.defaultTargetOption]);
 
-  renderAddLinkModal() {
-    const {
-      config: { popupClassName },
-      doCollapse,
-      translations,
-    } = this.props;
-    const { linkTitle, linkTarget, linkTargetOption } = this.state;
+  const renderAddLinkModal = () => {
+    const { popupClassName } = config;
     return (
       <div
         className={classNames('rdw-link-modal', popupClassName)}
@@ -115,8 +76,8 @@ class LayoutComponent extends Component {
         <input
           id="linkTitle"
           className="rdw-link-modal-input"
-          onChange={this.updateValue}
-          onBlur={this.updateValue}
+          onChange={updateValue}
+          onBlur={updateValue}
           name="linkTitle"
           value={linkTitle}
         />
@@ -126,8 +87,8 @@ class LayoutComponent extends Component {
         <input
           id="linkTarget"
           className="rdw-link-modal-input"
-          onChange={this.updateValue}
-          onBlur={this.updateValue}
+          onChange={updateValue}
+          onBlur={updateValue}
           name="linkTarget"
           value={linkTarget}
         />
@@ -140,7 +101,7 @@ class LayoutComponent extends Component {
             type="checkbox"
             defaultChecked={linkTargetOption === '_blank'}
             value="_blank"
-            onChange={this.updateTargetOption}
+            onChange={updateTargetOption}
           />
           <span>
             {translations['components.controls.link.linkTargetOption']}
@@ -149,7 +110,7 @@ class LayoutComponent extends Component {
         <span className="rdw-link-modal-buttonsection">
           <button
             className="rdw-link-modal-btn"
-            onClick={this.addLink}
+            onClick={addLink}
             disabled={!linkTarget || !linkTitle}
           >
             {translations['generic.add']}
@@ -160,16 +121,10 @@ class LayoutComponent extends Component {
         </span>
       </div>
     );
-  }
+  };
 
-  renderInFlatList() {
-    const {
-      config: { options, link, unlink, className },
-      currentState,
-      expanded,
-      translations,
-    } = this.props;
-    const { showModal } = this.state;
+  const renderInFlatList = () => {
+    const { options, link, unlink, className } = config;
     return (
       <div
         className={classNames('rdw-link-wrapper', className)}
@@ -179,7 +134,7 @@ class LayoutComponent extends Component {
           <Option
             value="unordered-list-item"
             className={classNames(link.className)}
-            onClick={this.signalExpandShowModal}
+            onClick={signalExpandShowModal}
             aria-haspopup="true"
             aria-expanded={showModal}
             title={link.title || translations['components.controls.link.link']}
@@ -192,7 +147,7 @@ class LayoutComponent extends Component {
             disabled={!currentState.link}
             value="ordered-list-item"
             className={classNames(unlink.className)}
-            onClick={this.removeLink}
+            onClick={removeLink}
             title={
               unlink.title || translations['components.controls.link.unlink']
             }
@@ -200,31 +155,13 @@ class LayoutComponent extends Component {
             <img src={unlink.icon} alt="" />
           </Option>
         )}
-        {expanded && showModal ? this.renderAddLinkModal() : undefined}
+        {expanded && showModal ? renderAddLinkModal() : undefined}
       </div>
     );
-  }
+  };
 
-  renderInDropDown() {
-    const {
-      expanded,
-      onExpandEvent,
-      doCollapse,
-      doExpand,
-      onChange,
-      config,
-      currentState,
-      translations,
-    } = this.props;
-    const {
-      options,
-      link,
-      unlink,
-      className,
-      dropdownClassName,
-      title,
-    } = config;
-    const { showModal } = this.state;
+  const renderInDropDown = () => {
+    const { options, link, unlink, className, dropdownClassName, title } = config;
     return (
       <div
         className="rdw-link-wrapper"
@@ -245,7 +182,7 @@ class LayoutComponent extends Component {
           <img src={getFirstIcon(config)} alt="" />
           {options.indexOf('link') >= 0 && (
             <DropdownOption
-              onClick={this.forceExpandAndShowModal}
+              onClick={forceExpandAndShowModal}
               className={classNames('rdw-link-dropdownoption', link.className)}
               title={
                 link.title || translations['components.controls.link.link']
@@ -256,7 +193,7 @@ class LayoutComponent extends Component {
           )}
           {options.indexOf('unlink') >= 0 && (
             <DropdownOption
-              onClick={this.removeLink}
+              onClick={removeLink}
               disabled={!currentState.link}
               className={classNames(
                 'rdw-link-dropdownoption',
@@ -270,20 +207,26 @@ class LayoutComponent extends Component {
             </DropdownOption>
           )}
         </Dropdown>
-        {expanded && showModal ? this.renderAddLinkModal() : undefined}
+        {expanded && showModal ? renderAddLinkModal() : undefined}
       </div>
     );
-  }
+  };
 
-  render() {
-    const {
-      config: { inDropdown },
-    } = this.props;
-    if (inDropdown) {
-      return this.renderInDropDown();
-    }
-    return this.renderInFlatList();
+  if (config.inDropdown) {
+    return renderInDropDown();
   }
-}
+  return renderInFlatList();
+};
+
+LayoutComponent.propTypes = {
+  expanded: PropTypes.bool,
+  doExpand: PropTypes.func,
+  doCollapse: PropTypes.func,
+  onExpandEvent: PropTypes.func,
+  config: PropTypes.object,
+  onChange: PropTypes.func,
+  currentState: PropTypes.object,
+  translations: PropTypes.object,
+};
 
 export default LayoutComponent;

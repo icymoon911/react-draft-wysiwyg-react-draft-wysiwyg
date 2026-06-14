@@ -1,5 +1,3 @@
-/* @flow */
-
 import React from "react";
 import { expect, assert } from "chai";
 import { shallow, mount } from "enzyme";
@@ -43,18 +41,19 @@ describe("ImageRenderer test suite", () => {
     ).to.equal("span");
   });
 
-  it("should have state initialized correctly", () => {
+  it("should not show alignment options when not hovered", () => {
     const Image = getImageComponent({
       isReadOnly: () => false,
       isImageAlignmentEnabled: () => true,
     });
-    const control = shallow(
+    const control = mount(
       <Image
         block={getAllBlocks(newEditorState).get(1)}
         contentState={contentState}
       />
     );
-    assert.isNotTrue(control.state().hovered);
+    // Alignment options should not be visible when not hovered
+    assert.equal(control.find('.rdw-image-alignment-options-popup').length, 0);
   });
 
   it("should have 1 child element by default", () => {

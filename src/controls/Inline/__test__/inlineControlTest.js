@@ -1,5 +1,3 @@
-/* @flow */
-
 import React from 'react';
 import {
   EditorState,
@@ -83,19 +81,18 @@ describe('InlineControl test suite', () => {
     assert.equal(onChange.callCount, 5);
   });
 
-  it('should have false value for all rich styles in state by default', () => {
-    const control = shallow(
+  it('should have no active styles by default', () => {
+    const control = mount(
       <InlineControl
         onChange={() => {}}
         editorState={editorState}
         config={defaultToolbar.inline}
+        translations={localeTranslations.en}
         modalHandler={new ModalHandler()}
       />,
     );
-    assert.isNotTrue(control.state().currentStyles.BOLD);
-    assert.isNotTrue(control.state().currentStyles.ITALIC);
-    assert.isNotTrue(control.state().currentStyles.UNDERLINE);
-    assert.isNotTrue(control.state().currentStyles.STRIKETHROUGH);
-    assert.isNotTrue(control.state().currentStyles.MONOSPACE);
+    // Verify none of the options have the active class
+    const activeOptions = control.find('.rdw-option-active');
+    assert.equal(activeOptions.length, 0);
   });
 });

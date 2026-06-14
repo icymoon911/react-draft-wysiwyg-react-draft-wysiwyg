@@ -1,5 +1,3 @@
-/* @flow */
-
 import React from "react";
 import { expect, assert } from "chai";
 import { mount } from "enzyme";
@@ -46,7 +44,7 @@ describe("LinkControl test suite", () => {
     expect(control.find(Option).length).to.equal(2);
   });
 
-  it("should have no value for state variable link default", () => {
+  it("should not be expanded by default", () => {
     const control = mount(
       <LinkControl
         onChange={() => {}}
@@ -56,26 +54,29 @@ describe("LinkControl test suite", () => {
         modalHandler={new ModalHandler()}
       />
     );
-    const state = control.state();
-    assert.isNotTrue(state.expanded);
-    assert.equal(state.link, undefined);
+    // Verify modal is not shown
+    expect(control.find(".rdw-link-modal").length).to.equal(0);
   });
 
   it("should convert links starting with www to start with http://", () => {
     const onChange = spy();
+    const modalHandler = new ModalHandler();
     const control = mount(
       <LinkControl
         config={defaultToolbar.link}
         onChange={onChange}
         editorState={editorState}
         translations={localeTranslations.en}
-        modalHandler={new ModalHandler()}
+        modalHandler={modalHandler}
       />
     );
-    control.setState({ expanded: true });
-    const buttons = control.find(".rdw-option-wrapper");
-    buttons.first().simulate("click");
+    // Click the link button to trigger signalExpanded
+    control.find(Option).first().simulate("click");
+    // Manually trigger the modal handler callback to expand
+    modalHandler.closeAllModals();
+    control.update();
     const inputs = control.find(".rdw-link-modal-input");
+    expect(inputs.length).to.be.greaterThan(0);
     inputs.last().simulate("change", {
       target: { name: "linkTitle", value: "the google" }
     });
@@ -93,10 +94,21 @@ describe("LinkControl test suite", () => {
 
   it("should use custom linkifier if one is set with linkCallback", () => {
     const onChange = spy();
-    const control = mount(<LinkControl config={{ ...defaultToolbar.link, linkCallback: props => props }} onChange={onChange} editorState={editorState} translations={localeTranslations.en} modalHandler={new ModalHandler()} />);
-    control.setState({ expanded: true });
-    const buttons = control.find(".rdw-option-wrapper");
-    buttons.first().simulate("click");
+    const modalHandler = new ModalHandler();
+    const control = mount(
+      <LinkControl
+        config={{ ...defaultToolbar.link, linkCallback: props => props }}
+        onChange={onChange}
+        editorState={editorState}
+        translations={localeTranslations.en}
+        modalHandler={modalHandler}
+      />
+    );
+    // Click the link button to trigger signalExpanded
+    control.find(Option).first().simulate("click");
+    // Manually trigger the modal handler callback to expand
+    modalHandler.closeAllModals();
+    control.update();
     const inputs = control.find(".rdw-link-modal-input");
     inputs.last().simulate("change", {
       target: { name: "linkTitle", value: "the google" }
@@ -115,18 +127,21 @@ describe("LinkControl test suite", () => {
 
   it("should return input value by default", () => {
     const onChange = spy();
+    const modalHandler = new ModalHandler();
     const control = mount(
       <LinkControl
         config={defaultToolbar.link}
         onChange={onChange}
         editorState={editorState}
         translations={localeTranslations.en}
-        modalHandler={new ModalHandler()}
+        modalHandler={modalHandler}
       />
     );
-    control.setState({ expanded: true });
-    const buttons = control.find(".rdw-option-wrapper");
-    buttons.first().simulate("click");
+    // Click the link button to trigger signalExpanded
+    control.find(Option).first().simulate("click");
+    // Manually trigger the modal handler callback to expand
+    modalHandler.closeAllModals();
+    control.update();
     const inputs = control.find(".rdw-link-modal-input");
     inputs.last().simulate("change", {
       target: { name: "linkTitle", value: "the google" }

@@ -1,57 +1,14 @@
-import React, { Component } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 import { AtomicBlockUtils } from 'draft-js';
 
+import useExpandCollapse from '../../hooks/useExpandCollapse';
 import LayoutComponent from './Component';
 
-class ImageControl extends Component {
-  static propTypes = {
-    editorState: PropTypes.object.isRequired,
-    onChange: PropTypes.func.isRequired,
-    modalHandler: PropTypes.object,
-    config: PropTypes.object,
-    translations: PropTypes.object,
-  };
+const ImageControl = ({ editorState, onChange, modalHandler, config, translations }) => {
+  const { expanded, onExpandEvent, doExpand, doCollapse } = useExpandCollapse(modalHandler);
 
-  constructor(props) {
-    super(props);
-    const { modalHandler } = this.props;
-    this.state = {
-      expanded: false,
-    };
-    modalHandler.registerCallBack(this.expandCollapse);
-  }
-
-  componentWillUnmount() {
-    const { modalHandler } = this.props;
-    modalHandler.deregisterCallBack(this.expandCollapse);
-  }
-
-  onExpandEvent = () => {
-    this.signalExpanded = !this.state.expanded;
-  };
-
-  doExpand = () => {
-    this.setState({
-      expanded: true,
-    });
-  };
-
-  doCollapse = () => {
-    this.setState({
-      expanded: false,
-    });
-  };
-
-  expandCollapse = () => {
-    this.setState({
-      expanded: this.signalExpanded,
-    });
-    this.signalExpanded = false;
-  };
-
-  addImage = (src, height, width, alt) => {
-    const { editorState, onChange, config } = this.props;
+  const addImage = (src, height, width, alt) => {
     const entityData = { src, height, width };
     if (config.alt.present) {
       entityData.alt = alt;
@@ -66,25 +23,29 @@ class ImageControl extends Component {
       ' '
     );
     onChange(newEditorState);
-    this.doCollapse();
+    doCollapse();
   };
 
-  render() {
-    const { config, translations } = this.props;
-    const { expanded } = this.state;
-    const ImageComponent = config.component || LayoutComponent;
-    return (
-      <ImageComponent
-        config={config}
-        translations={translations}
-        onChange={this.addImage}
-        expanded={expanded}
-        onExpandEvent={this.onExpandEvent}
-        doExpand={this.doExpand}
-        doCollapse={this.doCollapse}
-      />
-    );
-  }
-}
+  const ImageComponent = config.component || LayoutComponent;
+  return (
+    <ImageComponent
+      config={config}
+      translations={translations}
+      onChange={addImage}
+      expanded={expanded}
+      onExpandEvent={onExpandEvent}
+      doExpand={doExpand}
+      doCollapse={doCollapse}
+    />
+  );
+};
+
+ImageControl.propTypes = {
+  editorState: PropTypes.object.isRequired,
+  onChange: PropTypes.func.isRequired,
+  modalHandler: PropTypes.object,
+  config: PropTypes.object,
+  translations: PropTypes.object,
+};
 
 export default ImageControl;

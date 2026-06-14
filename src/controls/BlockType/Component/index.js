@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { useMemo } from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 
@@ -6,79 +6,28 @@ import Option from '../../../components/Option';
 import { Dropdown, DropdownOption } from '../../../components/Dropdown';
 import './styles.css';
 
-class LayoutComponent extends Component {
-  static propTypes = {
-    expanded: PropTypes.bool,
-    onExpandEvent: PropTypes.func,
-    doExpand: PropTypes.func,
-    doCollapse: PropTypes.func,
-    onChange: PropTypes.func,
-    config: PropTypes.object,
-    currentState: PropTypes.object,
-    translations: PropTypes.object,
-  };
+const getBlockTypes = (translations) => [
+  { label: 'Normal', displayName: translations['components.controls.blocktype.normal'] },
+  { label: 'H1', displayName: translations['components.controls.blocktype.h1'] },
+  { label: 'H2', displayName: translations['components.controls.blocktype.h2'] },
+  { label: 'H3', displayName: translations['components.controls.blocktype.h3'] },
+  { label: 'H4', displayName: translations['components.controls.blocktype.h4'] },
+  { label: 'H5', displayName: translations['components.controls.blocktype.h5'] },
+  { label: 'H6', displayName: translations['components.controls.blocktype.h6'] },
+  { label: 'Blockquote', displayName: translations['components.controls.blocktype.blockquote'] },
+  { label: 'Code', displayName: translations['components.controls.blocktype.code'] },
+];
 
-  constructor(props) {
-    super(props);
-    this.state = {
-      blockTypes: this.getBlockTypes(props.translations),
-    };
-  }
+const LayoutComponent = ({ expanded, onExpandEvent, doExpand, doCollapse, onChange, config, currentState, translations }) => {
+  const blockTypes = useMemo(() => getBlockTypes(translations), [translations]);
+  const blocks = useMemo(
+    () => blockTypes.filter(({ label }) => config.options.indexOf(label) > -1),
+    [blockTypes, config.options]
+  );
 
-  componentDidUpdate(prevProps) {
-    const { translations } = this.props;
-    if (translations !== prevProps.translations) {
-      this.setState({
-        blockTypes: this.getBlockTypes(translations),
-      });
-    }
-  }
-
-  getBlockTypes = translations => [
-    {
-      label: 'Normal',
-      displayName: translations['components.controls.blocktype.normal'],
-    },
-    {
-      label: 'H1',
-      displayName: translations['components.controls.blocktype.h1'],
-    },
-    {
-      label: 'H2',
-      displayName: translations['components.controls.blocktype.h2'],
-    },
-    {
-      label: 'H3',
-      displayName: translations['components.controls.blocktype.h3'],
-    },
-    {
-      label: 'H4',
-      displayName: translations['components.controls.blocktype.h4'],
-    },
-    {
-      label: 'H5',
-      displayName: translations['components.controls.blocktype.h5'],
-    },
-    {
-      label: 'H6',
-      displayName: translations['components.controls.blocktype.h6'],
-    },
-    {
-      label: 'Blockquote',
-      displayName: translations['components.controls.blocktype.blockquote'],
-    },
-    {
-      label: 'Code',
-      displayName: translations['components.controls.blocktype.code'],
-    },
-  ];
-
-  renderFlat(blocks) {
-    const {
-      config: { className },
-      onChange,
-      currentState: { blockType },
-    } = this.props;
+  const renderFlat = () => {
+    const { className } = config;
+    const { blockType } = currentState;
     return (
       <div className={classNames('rdw-inline-wrapper', className)}>
         {blocks.map((block, index) => (
@@ -93,21 +42,12 @@ class LayoutComponent extends Component {
         ))}
       </div>
     );
-  }
+  };
 
-  renderInDropdown(blocks) {
-    const {
-      config: { className, dropdownClassName, title },
-      currentState: { blockType },
-      expanded,
-      doExpand,
-      onExpandEvent,
-      doCollapse,
-      onChange,
-      translations,
-    } = this.props;
-    const { blockTypes } = this.state;
-    const currentBlockData = blockTypes.filter(blk => blk.label === blockType);
+  const renderInDropdown = () => {
+    const { className, dropdownClassName, title } = config;
+    const { blockType } = currentState;
+    const currentBlockData = blockTypes.filter((blk) => blk.label === blockType);
     const currentLabel =
       currentBlockData &&
       currentBlockData[0] &&
@@ -142,17 +82,20 @@ class LayoutComponent extends Component {
         </Dropdown>
       </div>
     );
-  }
+  };
 
-  render() {
-    const { config } = this.props;
-    const { inDropdown } = config;
-    const { blockTypes } = this.state;
-    const blocks = blockTypes.filter(
-      ({ label }) => config.options.indexOf(label) > -1
-    );
-    return inDropdown ? this.renderInDropdown(blocks) : this.renderFlat(blocks);
-  }
-}
+  return config.inDropdown ? renderInDropdown() : renderFlat();
+};
+
+LayoutComponent.propTypes = {
+  expanded: PropTypes.bool,
+  onExpandEvent: PropTypes.func,
+  doExpand: PropTypes.func,
+  doCollapse: PropTypes.func,
+  onChange: PropTypes.func,
+  config: PropTypes.object,
+  currentState: PropTypes.object,
+  translations: PropTypes.object,
+};
 
 export default LayoutComponent;

@@ -1,52 +1,17 @@
-import React, { Component } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 import { EditorState, Modifier } from 'draft-js';
 import { getSelectionCustomInlineStyle } from 'draftjs-utils';
 
 import { forEach } from '../../utils/common';
+import useExpandCollapse from '../../hooks/useExpandCollapse';
 import LayoutComponent from './Component';
 
-export default class Remove extends Component {
-  static propTypes = {
-    onChange: PropTypes.func.isRequired,
-    editorState: PropTypes.object.isRequired,
-    config: PropTypes.object,
-    translations: PropTypes.object,
-    modalHandler: PropTypes.object,
-  };
+const Remove = ({ onChange, editorState, config, translations, modalHandler }) => {
+  const { expanded, onExpandEvent, doExpand, doCollapse } = useExpandCollapse(modalHandler);
 
-  state = {
-    expanded: false,
-  };
-
-  componentDidMount() {
-    const { modalHandler } = this.props;
-    modalHandler.registerCallBack(this.expandCollapse);
-  }
-
-  componentWillUnmount() {
-    const { modalHandler } = this.props;
-    modalHandler.deregisterCallBack(this.expandCollapse);
-  }
-
-  onExpandEvent = () => {
-    this.signalExpanded = !this.state.expanded;
-  };
-
-  expandCollapse = () => {
-    this.setState({
-      expanded: this.signalExpanded,
-    });
-    this.signalExpanded = false;
-  };
-
-  removeInlineStyles = () => {
-    const { editorState, onChange } = this.props;
-    onChange(this.removeAllInlineStyles(editorState));
-  };
-
-  removeAllInlineStyles = editorState => {
-    let contentState = editorState.getCurrentContent();
+  const removeAllInlineStyles = (es) => {
+    let contentState = es.getCurrentContent();
     [
       'BOLD',
       'ITALIC',
@@ -55,14 +20,14 @@ export default class Remove extends Component {
       'MONOSPACE',
       'SUPERSCRIPT',
       'SUBSCRIPT',
-    ].forEach(style => {
+    ].forEach((style) => {
       contentState = Modifier.removeInlineStyle(
         contentState,
-        editorState.getSelection(),
+        es.getSelection(),
         style
       );
     });
-    const customStyles = getSelectionCustomInlineStyle(editorState, [
+    const customStyles = getSelectionCustomInlineStyle(es, [
       'FONTSIZE',
       'FONTFAMILY',
       'COLOR',
@@ -72,43 +37,39 @@ export default class Remove extends Component {
       if (value) {
         contentState = Modifier.removeInlineStyle(
           contentState,
-          editorState.getSelection(),
+          es.getSelection(),
           value
         );
       }
     });
 
-    return EditorState.push(editorState, contentState, 'change-inline-style');
+    return EditorState.push(es, contentState, 'change-inline-style');
   };
 
-  doExpand = () => {
-    this.setState({
-      expanded: true,
-    });
+  const removeInlineStyles = () => {
+    onChange(removeAllInlineStyles(editorState));
   };
 
-  doCollapse = () => {
-    this.setState({
-      expanded: false,
-    });
-  };
+  const RemoveComponent = config.component || LayoutComponent;
+  return (
+    <RemoveComponent
+      config={config}
+      translations={translations}
+      expanded={expanded}
+      onExpandEvent={onExpandEvent}
+      doExpand={doExpand}
+      doCollapse={doCollapse}
+      onChange={removeInlineStyles}
+    />
+  );
+};
 
-  render() {
-    const { config, translations } = this.props;
-    const { expanded } = this.state;
-    const RemoveComponent = config.component || LayoutComponent;
-    return (
-      <RemoveComponent
-        config={config}
-        translations={translations}
-        expanded={expanded}
-        onExpandEvent={this.onExpandEvent}
-        doExpand={this.doExpand}
-        doCollapse={this.doCollapse}
-        onChange={this.removeInlineStyles}
-      />
-    );
-  }
-}
+Remove.propTypes = {
+  onChange: PropTypes.func.isRequired,
+  editorState: PropTypes.object.isRequired,
+  config: PropTypes.object,
+  translations: PropTypes.object,
+  modalHandler: PropTypes.object,
+};
 
-// todo: unit test coverage
+export default Remove;

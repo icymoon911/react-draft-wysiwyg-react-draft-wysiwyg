@@ -1,59 +1,35 @@
-import React, { Component } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 import { getSelectionInlineStyle } from 'draftjs-utils';
 import { RichUtils, EditorState, Modifier } from 'draft-js';
 import { forEach } from '../../utils/common';
 
+import useExpandCollapse from '../../hooks/useExpandCollapse';
+import useEditorStateSync from '../../hooks/useEditorStateSync';
 import LayoutComponent from './Component';
 
-export default class Inline extends Component {
-  static propTypes = {
-    onChange: PropTypes.func.isRequired,
-    editorState: PropTypes.object.isRequired,
-    modalHandler: PropTypes.object,
-    config: PropTypes.object,
-    translations: PropTypes.object,
-  };
-
-  constructor(props) {
-    super(props);
-    const { editorState, modalHandler } = this.props;
-    this.state = {
-      currentStyles: editorState
-        ? this.changeKeys(getSelectionInlineStyle(editorState))
-        : {},
-    };
-    modalHandler.registerCallBack(this.expandCollapse);
-  }
-
-  componentDidUpdate(prevProps) {
-    const { editorState } = this.props;
-    if (editorState && editorState !== prevProps.editorState) {
-      this.setState({
-        currentStyles: this.changeKeys(getSelectionInlineStyle(editorState)),
-      });
-    }
-  }
-
-  componentWillUnmount() {
-    const { modalHandler } = this.props;
-    modalHandler.deregisterCallBack(this.expandCollapse);
-  }
-
-  onExpandEvent = () => {
-    this.signalExpanded = !this.state.expanded;
-  };
-
-  expandCollapse = () => {
-    this.setState({
-      expanded: this.signalExpanded,
+const changeKeys = (style) => {
+  if (style) {
+    const st = {};
+    forEach(style, (key, value) => {
+      st[key === 'CODE' ? 'monospace' : key.toLowerCase()] = value;
     });
-    this.signalExpanded = false;
-  };
+    return st;
+  }
+  return undefined;
+};
 
-  toggleInlineStyle = style => {
+const Inline = ({ onChange, editorState, modalHandler, config, translations }) => {
+  const { expanded, onExpandEvent, doExpand, doCollapse } = useExpandCollapse(modalHandler);
+
+  const currentStyles = useEditorStateSync(
+    editorState,
+    (es) => changeKeys(getSelectionInlineStyle(es)),
+    {}
+  );
+
+  const toggleInlineStyle = (style) => {
     const newStyle = style === 'monospace' ? 'CODE' : style.toUpperCase();
-    const { editorState, onChange } = this.props;
     let newState = RichUtils.toggleInlineStyle(editorState, newStyle);
     if (style === 'subscript' || style === 'superscript') {
       const removeStyle = style === 'subscript' ? 'SUPERSCRIPT' : 'SUBSCRIPT';
@@ -73,45 +49,27 @@ export default class Inline extends Component {
     }
   };
 
-  changeKeys = style => {
-    if (style) {
-      const st = {};
-      forEach(style, (key, value) => {
-        st[key === 'CODE' ? 'monospace' : key.toLowerCase()] = value;
-      });
-      return st;
-    }
-    return undefined;
-  };
+  const InlineComponent = config.component || LayoutComponent;
+  return (
+    <InlineComponent
+      config={config}
+      translations={translations}
+      currentState={currentStyles}
+      expanded={expanded}
+      onExpandEvent={onExpandEvent}
+      doExpand={doExpand}
+      doCollapse={doCollapse}
+      onChange={toggleInlineStyle}
+    />
+  );
+};
 
-  doExpand = () => {
-    this.setState({
-      expanded: true,
-    });
-  };
+Inline.propTypes = {
+  onChange: PropTypes.func.isRequired,
+  editorState: PropTypes.object.isRequired,
+  modalHandler: PropTypes.object,
+  config: PropTypes.object,
+  translations: PropTypes.object,
+};
 
-  doCollapse = () => {
-    this.setState({
-      expanded: false,
-    });
-  };
-
-  render() {
-    const { config, translations } = this.props;
-    const { expanded, currentStyles } = this.state;
-    const InlineComponent = config.component || LayoutComponent;
-    return (
-      <InlineComponent
-        config={config}
-        translations={translations}
-        currentState={currentStyles}
-        expanded={expanded}
-        onExpandEvent={this.onExpandEvent}
-        doExpand={this.doExpand}
-        doCollapse={this.doCollapse}
-        onChange={this.toggleInlineStyle}
-      />
-    );
-  }
-}
-// make subscript less low
+export default Inline;

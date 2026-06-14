@@ -1,100 +1,52 @@
-import React, { Component } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 import {
   toggleCustomInlineStyle,
   getSelectionCustomInlineStyle,
 } from 'draftjs-utils';
 
+import useExpandCollapse from '../../hooks/useExpandCollapse';
+import useEditorStateSync from '../../hooks/useEditorStateSync';
 import LayoutComponent from './Component';
 
-export default class FontFamily extends Component {
-  static propTypes = {
-    onChange: PropTypes.func.isRequired,
-    editorState: PropTypes.object,
-    modalHandler: PropTypes.object,
-    config: PropTypes.object,
-    translations: PropTypes.object,
-  };
+const FontFamily = ({ onChange, editorState, modalHandler, config, translations }) => {
+  const { expanded, onExpandEvent, doExpand, doCollapse } = useExpandCollapse(modalHandler);
 
-  constructor(props) {
-    super(props);
-    const { editorState, modalHandler } = props;
-    this.state = {
-      expanded: undefined,
-      currentFontFamily: editorState
-        ? getSelectionCustomInlineStyle(editorState, ['FONTFAMILY']).FONTFAMILY
-        : undefined,
-    };
-    modalHandler.registerCallBack(this.expandCollapse);
-  }
+  const currentFontFamily = useEditorStateSync(
+    editorState,
+    (es) => getSelectionCustomInlineStyle(es, ['FONTFAMILY']).FONTFAMILY,
+    undefined
+  );
 
-  componentDidUpdate(prevProps) {
-    const { editorState } = this.props;
-    if (editorState && editorState !== prevProps.editorState) {
-      this.setState({
-        currentFontFamily: getSelectionCustomInlineStyle(editorState, [
-          'FONTFAMILY',
-        ]).FONTFAMILY,
-      });
-    }
-  }
-
-  componentWillUnmount() {
-    const { modalHandler } = this.props;
-    modalHandler.deregisterCallBack(this.expandCollapse);
-  }
-
-  onExpandEvent = () => {
-    this.signalExpanded = !this.state.expanded;
-  };
-
-  expandCollapse = () => {
-    this.setState({
-      expanded: this.signalExpanded,
-    });
-    this.signalExpanded = false;
-  };
-
-  doExpand = () => {
-    this.setState({
-      expanded: true,
-    });
-  };
-
-  doCollapse = () => {
-    this.setState({
-      expanded: false,
-    });
-  };
-
-  toggleFontFamily = fontFamily => {
-    const { editorState, onChange } = this.props;
-    const newState = toggleCustomInlineStyle(
-      editorState,
-      'fontFamily',
-      fontFamily
-    );
+  const toggleFontFamily = (fontFamily) => {
+    const newState = toggleCustomInlineStyle(editorState, 'fontFamily', fontFamily);
     if (newState) {
       onChange(newState);
     }
   };
 
-  render() {
-    const { config, translations } = this.props;
-    const { expanded, currentFontFamily } = this.state;
-    const FontFamilyComponent = config.component || LayoutComponent;
-    const fontFamily = currentFontFamily && currentFontFamily.substring(11);
-    return (
-      <FontFamilyComponent
-        translations={translations}
-        config={config}
-        currentState={{ fontFamily }}
-        onChange={this.toggleFontFamily}
-        expanded={expanded}
-        onExpandEvent={this.onExpandEvent}
-        doExpand={this.doExpand}
-        doCollapse={this.doCollapse}
-      />
-    );
-  }
-}
+  const fontFamily = currentFontFamily && currentFontFamily.substring(11);
+  const FontFamilyComponent = config.component || LayoutComponent;
+  return (
+    <FontFamilyComponent
+      translations={translations}
+      config={config}
+      currentState={{ fontFamily }}
+      onChange={toggleFontFamily}
+      expanded={expanded}
+      onExpandEvent={onExpandEvent}
+      doExpand={doExpand}
+      doCollapse={doCollapse}
+    />
+  );
+};
+
+FontFamily.propTypes = {
+  onChange: PropTypes.func.isRequired,
+  editorState: PropTypes.object,
+  modalHandler: PropTypes.object,
+  config: PropTypes.object,
+  translations: PropTypes.object,
+};
+
+export default FontFamily;
