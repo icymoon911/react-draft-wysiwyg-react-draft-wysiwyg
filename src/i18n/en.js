@@ -76,5 +76,16 @@ export default {
   "components.controls.textalign.left": "Left",
   "components.controls.textalign.center": "Center",
   "components.controls.textalign.right": "Right",
-  "components.controls.textalign.justify": "Justify"
+  "components.controls.textalign.justify": "Justify",
+
+  // Table
+  "components.controls.table.table": "Table",
+  "components.controls.table.insertTable": "Insert Table",
+  "components.controls.table.insertRowAbove": "Insert row above",
+  "components.controls.table.insertRowBelow": "Insert row below",
+  "components.controls.table.insertColLeft": "Insert column left",
+  "components.controls.table.insertColRight": "Insert column right",
+  "components.controls.table.deleteRow": "Delete row",
+  "components.controls.table.deleteCol": "Delete column",
+  "components.controls.table.deleteTable": "Delete table"
 };

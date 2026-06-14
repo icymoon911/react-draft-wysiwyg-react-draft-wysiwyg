@@ -1,0 +1,122 @@
+/* Table control toolbar styles */
+.rdw-table-wrapper {
+  display: flex;
+  align-items: center;
+  margin-bottom: 6px;
+  position: relative;
+}
+
+/* Grid picker popup (for inserting a new table) */
+.rdw-table-modal {
+  position: absolute;
+  top: 35px;
+  left: 5px;
+  display: flex;
+  flex-direction: column;
+  border: 1px solid #F1F1F1;
+  padding: 15px;
+  border-radius: 2px;
+  z-index: 100;
+  background: white;
+  box-shadow: 3px 3px 5px #BFBDBD;
+}
+
+.rdw-table-modal-title {
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 10px;
+  color: #333;
+}
+
+.rdw-table-grid {
+  display: flex;
+  flex-direction: column;
+}
+
+.rdw-table-grid-row {
+  display: flex;
+}
+
+.rdw-table-grid-cell {
+  width: 22px;
+  height: 22px;
+  border: 1px solid #ddd;
+  margin: 1px;
+  cursor: pointer;
+  background: white;
+  border-radius: 1px;
+  transition: background-color 0.1s;
+}
+
+.rdw-table-grid-cell:hover,
+.rdw-table-grid-cell-active {
+  background: #6EB8D4;
+  border-color: #0a66b7;
+}
+
+.rdw-table-modal-size {
+  text-align: center;
+  font-size: 13px;
+  color: #555;
+  margin-top: 8px;
+  height: 18px;
+}
+
+.rdw-table-modal-btn-section {
+  margin-top: 8px;
+  display: flex;
+  justify-content: center;
+}
+
+.rdw-table-modal-btn {
+  margin: 0 5px;
+  width: 75px;
+  height: 30px;
+  border: 1px solid #F1F1F1;
+  border-radius: 2px;
+  cursor: pointer;
+  background: white;
+  text-transform: capitalize;
+  font-size: 13px;
+}
+
+.rdw-table-modal-btn:hover {
+  box-shadow: 1px 1px 0px #BFBDBD;
+}
+
+.rdw-table-modal-btn:active {
+  box-shadow: 1px 1px 0px #BFBDBD inset;
+}
+
+.rdw-table-modal-btn:focus {
+  outline: none !important;
+}
+
+/* Table operations (shown when a table is selected) */
+.rdw-table-operations {
+  display: flex;
+  align-items: center;
+  margin-left: 4px;
+  padding-left: 4px;
+  border-left: 1px solid #e0e0e0;
+}
+
+.rdw-table-operation {
+  height: 28px !important;
+  width: 28px !important;
+  min-width: 28px !important;
+  padding: 2px !important;
+  margin: 0 1px;
+}
+
+.rdw-table-op-icon {
+  font-size: 11px;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.rdw-table-operation-danger:hover {
+  background: #fee !important;
+}

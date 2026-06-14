@@ -23,6 +23,7 @@ import undo from '../../images/undo.svg';
 import redo from '../../images/redo.svg';
 import subscript from '../../images/subscript.svg';
 import superscript from '../../images/superscript.svg';
+import table from '../../images/table.svg';
 
 /**
 * This is default toolbar configuration,
@@ -41,6 +42,7 @@ export default {
     "embedded",
     "emoji",
     "image",
+    "table",
     "remove",
     "history"
   ],
@@ -348,6 +350,23 @@ export default {
     defaultSize: {
       height: "auto",
       width: "auto"
+    },
+    title: undefined
+  },
+  table: {
+    icon: table,
+    className: undefined,
+    component: undefined,
+    popupClassName: undefined,
+    defaultTableStyle: {
+      borderCollapse: "collapse",
+      width: "100%"
+    },
+    defaultCellStyle: {
+      border: "1px solid #ddd",
+      padding: "8px",
+      minWidth: "60px",
+      verticalAlign: "top"
     },
     title: undefined
   },

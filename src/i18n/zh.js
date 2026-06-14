@@ -76,5 +76,16 @@ export default {
   "components.controls.textalign.left": "文本左对齐",
   "components.controls.textalign.center": "居中",
   "components.controls.textalign.right": "文本右对齐",
-  "components.controls.textalign.justify": "两端对齐"
+  "components.controls.textalign.justify": "两端对齐",
+
+  // Table
+  "components.controls.table.table": "表格",
+  "components.controls.table.insertTable": "插入表格",
+  "components.controls.table.insertRowAbove": "在上方插入行",
+  "components.controls.table.insertRowBelow": "在下方插入行",
+  "components.controls.table.insertColLeft": "在左侧插入列",
+  "components.controls.table.insertColRight": "在右侧插入列",
+  "components.controls.table.deleteRow": "删除行",
+  "components.controls.table.deleteCol": "删除列",
+  "components.controls.table.deleteTable": "删除表格"
 };

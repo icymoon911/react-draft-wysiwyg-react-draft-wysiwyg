@@ -1,0 +1,116 @@
+/* Table block renderer styles (inside the editor content area) */
+.rdw-table-block-wrapper {
+  margin: 12px 0;
+  position: relative;
+  overflow-x: auto;
+  border: 1px dashed transparent;
+  border-radius: 4px;
+  padding: 4px;
+  transition: border-color 0.2s;
+}
+
+.rdw-table-block-wrapper:hover {
+  border-color: #c8d6e5;
+}
+
+.rdw-table-block-table {
+  border-collapse: collapse;
+  width: 100%;
+  table-layout: fixed;
+}
+
+.rdw-table-cell {
+  border: 1px solid #ddd;
+  padding: 0;
+  min-width: 60px;
+  min-height: 30px;
+  vertical-align: top;
+  position: relative;
+  background: white;
+}
+
+.rdw-table-cell-editor {
+  min-height: 20px;
+  outline: none;
+  padding: 8px;
+}
+
+.rdw-table-cell-editor-inner {
+  min-height: 20px;
+  outline: none;
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+.rdw-table-cell-editor-inner .public-DraftEditor-content {
+  min-height: 20px;
+  margin: 0;
+  padding: 0;
+}
+
+.rdw-table-cell-editor-inner .public-DraftEditorPlaceholder-root {
+  color: #aaa;
+}
+
+/* Inline operation controls (shown above the table on hover/select) */
+.rdw-table-block-controls {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 8px;
+  margin-bottom: 6px;
+  background: #f8f9fa;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+  flex-wrap: wrap;
+}
+
+.rdw-table-block-controls-label {
+  font-size: 12px;
+  color: #666;
+  margin-right: 8px;
+  white-space: nowrap;
+}
+
+.rdw-table-block-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 28px;
+  height: 26px;
+  padding: 0 6px;
+  border: 1px solid #ddd;
+  border-radius: 3px;
+  background: white;
+  cursor: pointer;
+  font-size: 11px;
+  color: #555;
+  transition: all 0.15s;
+  white-space: nowrap;
+}
+
+.rdw-table-block-btn:hover {
+  background: #e8f0fe;
+  border-color: #4a90d9;
+  color: #333;
+}
+
+.rdw-table-block-btn:active {
+  background: #d0e0f0;
+}
+
+.rdw-table-block-btn:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(74, 144, 217, 0.3);
+}
+
+.rdw-table-block-btn-danger {
+  color: #d9534f;
+  border-color: #d9534f;
+}
+
+.rdw-table-block-btn-danger:hover {
+  background: #fde;
+  border-color: #c9302c;
+  color: #c9302c;
+}
